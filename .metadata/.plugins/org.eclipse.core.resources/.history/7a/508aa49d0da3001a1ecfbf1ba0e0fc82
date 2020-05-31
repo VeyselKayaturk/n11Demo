@@ -1,0 +1,139 @@
+package n11.selenium.webdriver;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+//import org.testng.annotations.Test;
+
+
+
+public class NOnBirAutomation {
+    
+	public static void main(String[] args) throws IOException{
+		
+		System.setProperty("webdriver.chrome.driver", ".\\driver\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		
+		driver.manage().timeouts().implicitlyWait(15,TimeUnit.SECONDS);
+		driver.manage().window().maximize();
+		
+		driver.navigate().to("https://www.n11.com");
+		
+		//Read name and password from csv file
+		String readFile = "credentials.csv";
+		File csvFile = new File(readFile);
+		@SuppressWarnings("resource")
+		BufferedReader bufferRead = new BufferedReader (new FileReader(csvFile));
+		String element = "";
+		
+		element = bufferRead.readLine();
+		String[] value = element.split(",");
+		String userName= value[0];
+		String userPassword = value[1];
+		
+		// login to n11
+		driver.findElement(By.className("btnSignIn")).click();
+		WebDriverWait wait = new WebDriverWait(driver, 20);
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("loginButton"))); 				//giriþ düðmesi görünür olana kadar bekle!
+		driver.findElement(By.id("email")).sendKeys(userName);
+		driver.findElement(By.id("password")).sendKeys(userPassword);
+		driver.findElement(By.id("loginButton")).click();
+		
+		// kullanýcýnýn giriþ yaptýðý doðrulanýr
+		String actualString = driver.findElement(By.xpath("//*[@id=\"header\"]/div/div/div[2]/div[2]/div[2]/div[1]/a[2]/text()")).getText();
+		Assert.assertEquals(actualString, "veysel.kayaturk93@gmail.com");
+		
+		// arama kutucuðuna týklanarak arama yapýlýr
+		driver.findElement(By.id("searchData")).click();
+		driver.findElement(By.id("searchData")).sendKeys("Bilgisayar");
+		driver.findElement(By.className("searchBtn")).click();
+		
+		// 2. sayfaya geçiþ
+		Actions action = new Actions(driver);
+		WebElement button = driver.findElement(By.xpath("//*[@id='contentListing']/div/div/div[2]/div[4]/a[2]"));
+		action.moveToElement(button).perform();
+		button.click();
+		
+		// click a random element
+		List<WebElement> items = driver.findElements(By.xpath("//*[@id=\"view\"]/ul/li"));
+		int numberOfItems = items.size();
+		Random rnd = new Random();
+		int randomItem = rnd.nextInt(numberOfItems);
+		items.get(randomItem).click();
+		
+		String price = driver.findElement(By.xpath("//*[@id=\"contentProDetail\"]/div/div[3]/div[2]/div[3]/div[2]/div[1]/div[1]/div/ins/text()")).getText();
+		String itemName = driver.findElement(By.className("proName")).getText();
+		
+		//ürün bilgisini text dosyasýna yazmak
+		File file = new File("itemInfo.txt");
+		FileWriter fw = new FileWriter(file);
+		PrintWriter pw = new PrintWriter(fw);
+		
+		pw.println(itemName);
+		pw.println(price);
+		
+		pw.close();
+		
+		
+		// sepete eklenmesi
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("btn btnGrey btnAddBasket")));
+		driver.findElement(By.className("btn btnGrey btnAddBasket")).click();
+		
+		driver.findElement(By.className("icon iconBasket")).click();
+		
+		
+		
+		// sayfada açýlan popup kapatýlmaktadýr. Eksik kaldý burayý tamamlamam lazým
+		WebElement closeIcon = driver.findElement(By.className("closeBtn"));
+		//if(Assert.assertEquals(true, closeIcon.isDisplayed()))
+		closeIcon.click();
+		
+		
+		String priceInBasket = driver.findElement(By.xpath("//*[@id=\"newCheckout\"]/div/div[1]/div[2]/div[1]/section/table[2]/tbody/tr/td[3]/div[2]/div/div/input")).getText(); // burdaki xpath ile text aldýðýmdan emin deðilim.
+		// tamamlamam lazým eksik kaldý!
+		Assert.assertEquals(price, priceInBasket);
+		
+		// sepette ürün adedi arrtýrýp kontrol etmek
+		driver.findElement(By.className("spinnerUp spinnerArrow")).click();
+		WebElement numberOfItem = driver.findElement(By.name("quantity"));
+		String num = numberOfItem.getAttribute("value");
+		Assert.assertEquals(num, 2);
+		
+		
+		// Ürünü sepetten silmek
+		driver.findElement(By.className("removeProd svgIcon svgIcon_trash")).click();
+		
+		String emptyBasket = driver.findElement(By.xpath("//*[@id=\"wrapper\"]/div[3]/div/div[1]/div[1]/h2")).getText();
+		Assert.assertEquals(emptyBasket, "Sepetiniz Boþ");
+	
+	
+		/*try {
+			while((element = bufferRead.readLine())!= null) {
+				String[] value = element.split(",");
+				String userName = value[0];
+				String userPassword = value[1];
+				
+			}
+		}catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}*/
+		
+	}
+
+}

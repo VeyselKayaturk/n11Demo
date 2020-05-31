@@ -1,0 +1,92 @@
+package n11.selenium.webdriver;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
+
+import org.junit.Assert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+
+
+public class NOnBirAutomation {
+    
+	public static void main(String[] args) throws IOException {
+		
+		System.setProperty("webdriver.chrome.driver", ".\\driver\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		
+		driver.manage().timeouts().implicitlyWait(15,TimeUnit.SECONDS);
+		driver.manage().window().maximize();
+		
+		driver.navigate().to("https://www.n11.com");
+	
+		//Read name and password from csv file
+		String readFile = "credentials.csv";
+		File csvFile = new File(readFile);
+		@SuppressWarnings("resource")
+		BufferedReader bufferRead = new BufferedReader (new FileReader(csvFile));
+		String element = "";
+		
+		element = bufferRead.readLine();
+		String[] value = element.split(",");
+		String userName= value[0];
+		String userPassword = value[1];
+		
+		// login to n11
+		driver.findElement(By.className("btnSignIn")).click();
+		WebDriverWait wait = new WebDriverWait(driver, 20);
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("loginButton"))); 				//giriþ düðmesi görünür olana kadar bekle!
+		driver.findElement(By.id("email")).sendKeys(userName);
+		driver.findElement(By.id("password")).sendKeys(userPassword);
+		driver.findElement(By.id("loginButton")).click();
+		
+		// kullanýcýnýn giriþ yaptýðý doðrulanýr
+		String actualString = driver.findElement(By.xpath("//*[@id=\"header\"]/div/div/div[2]/div[2]/div[2]/div[1]/a[2]/text()")).getText();
+		Assert.assertEquals(actualString, "veysel.kayaturk93@gmail.com");
+		
+		// arama kutucuðuna týklanarak arama yapýlýr
+		driver.findElement(By.id("searchData")).click();
+		driver.findElement(By.id("searchData")).sendKeys("Bilgisayar");
+		driver.findElement(By.className("searchBtn")).click();
+		
+		
+		// 2. sayfaya geçiþ
+		Actions action = new Actions(driver);
+		WebElement button = driver.findElement(By.i)
+		
+		
+	
+		
+		
+		
+		
+		
+		
+		/*try {
+			while((element = bufferRead.readLine())!= null) {
+				String[] value = element.split(",");
+				String userName = value[0];
+				String userPassword = value[1];
+				
+			}
+		}catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}*/
+		
+
+	}
+
+}

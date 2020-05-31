@@ -1,0 +1,52 @@
+package n11.selenium.webdriver;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import java.util.Scanner;
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+
+
+public class NOnBirAutomation {
+    
+	public static void main(String[] args) throws IOException {
+		
+		System.setProperty("webdriver.chrome.driver", ".\\driver\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		
+		driver.manage().timeouts().implicitlyWait(15,TimeUnit.SECONDS);
+		driver.manage().window().maximize();
+		
+		driver.navigate().to("https://www.n11.com");
+	
+		//Read name and password from csv file
+		String readFile = "credentials.csv";
+		File csvFile = new File(readFile);
+		BufferedReader bufferRead = new BufferedReader (new FileReader(csvFile));
+		String element = "";
+		try {
+			while((element = bufferRead.readLine())!= null) {
+				String[] value = element.split(",");
+				String userName = value[0];
+				String userPassword = value[1];
+				
+			}
+		}catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+
+	}
+
+}
